@@ -1,4 +1,3 @@
-
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -21,10 +20,13 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// Vercel serves files in public/ separately.
-// This fallback supports frontend routes.
+// Serve the built frontend (npm run build copies dist -> public)
+const publicDir = path.resolve(process.cwd(), 'public');
+app.use(express.static(publicDir));
+
+// Fallback for frontend routes
 app.get('*', (_req, res) => {
-  res.sendFile(path.resolve(process.cwd(), 'public', 'index.html'));
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 
 export default app;
@@ -36,7 +38,3 @@ if (!process.env.VERCEL) {
     console.log(`Server running on port ${PORT}`);
   });
 }
-
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
